@@ -1,0 +1,16 @@
+
+=========== 64-tap FIR self-checking testbench ===========
+ samples checked     : 10000
+ golden y range      : -10.2411 .. 9.8949  (span 20.1360)
+ golden hw format    : binary32 (shortreal)
+ clk2 phase offset   : 0.310 ns
+ DUT product format  : Q2.18  (20-bit)
+ DUT output format   : Q7.9
+ ---------------------------------------------------------
+ NRMSE  average      : 0.0028 %
+ NRMSE  worst case   : 0.0049 %
+ max abs error       : 0.000993  (0.509 LSB of Q7.9)
+==========================================================
+ RESULT: PASS
+
+tb/tb_fir_ref.v:193: $finish called at 100165000 (1ps)

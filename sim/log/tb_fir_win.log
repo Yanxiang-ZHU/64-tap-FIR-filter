@@ -1,0 +1,7 @@
+
+=========== fir_win unit check ===========
+ window 64 entries = 8 banks x 8
+ samples pushed 200, groups checked 1600
+ RESULT: PASS
+==========================================
+tb/tb_fir_win.v:101: $finish called at 16045000 (1ps)

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSEE W4823 · 64-tap FIR Filter · 工程看板</title>
+<style>
+  :root{
+    --ink:#16181d; --ink2:#4a5058; --ink3:#8a9099;
+    --line:#e3e5e9; --line2:#f0f1f4;
+    --bg:#ffffff; --bg2:#fafafb;
+    --accent:#1f4e79; --accent-soft:#eaf1f8;
+    --done:#2f6f4f; --done-soft:#eaf4ee;
+    --warn:#9a6b1f; --warn-soft:#fbf3e4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",
+                "PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 32px 96px}
+
+  /* ---------- header ---------- */
+  .eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+  h1{font-size:31px;line-height:1.25;margin:10px 0 6px;font-weight:650;letter-spacing:-.015em}
+  .sub{color:var(--ink2);font-size:14.5px;margin:0}
+  .spec{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 0}
+  .chip{
+    font-size:12.5px;padding:5px 11px;border-radius:6px;
+    background:var(--bg2);border:1px solid var(--line);color:var(--ink2);
+    font-variant-numeric:tabular-nums;
+  }
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- progress ---------- */
+  .prog{margin:34px 0 0;padding:20px 22px;border:1px solid var(--line);border-radius:10px;background:var(--bg2)}
+  .prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .prog-label{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+  .prog-num{font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .prog-num b{font-size:19px;color:var(--ink);font-weight:650}
+  .bar{height:6px;background:#e8eaee;border-radius:99px;overflow:hidden}
+  .bar span{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .35s ease}
+  .prog-sub{margin-top:10px;font-size:12.5px;color:var(--ink3)}
+
+  /* ---------- sections ---------- */
+  section{margin-top:56px}
+  h2{font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink3);font-weight:650;
+     margin:0 0 18px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+
+  /* ---------- milestone card ---------- */
+  .ms{border:1px solid var(--line);border-radius:10px;margin-bottom:14px;overflow:hidden;transition:border-color .2s}
+  .ms.is-complete{border-color:#cfe0d6;background:var(--done-soft)}
+  .ms-head{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;user-select:none}
+  .ms-head:hover{background:rgba(31,78,121,.025)}
+  .ms.is-complete .ms-head:hover{background:rgba(47,111,79,.05)}
+  .tick{
+    flex:0 0 20px;width:20px;height:20px;border-radius:5px;border:1.5px solid #c8ccd3;
+    display:grid;place-items:center;font-size:12px;color:#fff;transition:.18s;
+  }
+  .ms.is-complete .tick{background:var(--done);border-color:var(--done)}
+  .tick::after{content:"";display:block}
+  .ms.is-complete .tick::after{content:"✓"}
+  .ms-id{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--accent);
+         padding:3px 7px;background:var(--accent-soft);border-radius:5px;flex:0 0 auto}
+  .ms.is-complete .ms-id{color:var(--done);background:rgba(47,111,79,.13)}
+  .ms-title{font-weight:600;font-size:15.5px;flex:1}
+  .ms-pts{font-size:12.5px;color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ms-body{padding:0 20px 6px 54px;display:none;border-top:1px solid var(--line2)}
+  .ms.is-complete .ms-body{border-top-color:rgba(47,111,79,.15)}
+  .ms.open .ms-body{display:block}
+  .ms-note{font-size:13px;color:var(--ink2);margin:14px 0 6px}
+  .ms-note b{color:var(--ink)}
+
+  /* ---------- task rows ---------- */
+  ul.tasks{list-style:none;margin:10px 0 14px;padding:0}
+  ul.tasks li{display:flex;gap:11px;padding:6px 0;align-items:flex-start;font-size:14px;color:var(--ink2)}
+  ul.tasks li.done{color:var(--ink3)}
+  ul.tasks li.done .txt{text-decoration:line-through;text-decoration-color:#b9c9c0;text-decoration-thickness:1px}
+  .cb{
+    flex:0 0 15px;width:15px;height:15px;margin-top:4px;border-radius:4px;
+    border:1.5px solid #c8ccd3;cursor:pointer;display:grid;place-items:center;
+    font-size:10px;color:#fff;transition:.15s;
+  }
+  .cb:hover{border-color:var(--accent)}
+  ul.tasks li.done .cb{background:var(--done);border-color:var(--done)}
+  ul.tasks li.done .cb::after{content:"✓"}
+  .txt code{font-size:12.5px;background:var(--bg2);border:1px solid var(--line);
+            padding:1px 5px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .ms.is-complete .txt code{background:#fff}
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+  th{text-align:left;font-weight:600;color:var(--ink3);font-size:11.5px;letter-spacing:.08em;
+     text-transform:uppercase;padding:0 12px 8px 0;border-bottom:1px solid var(--line)}
+  td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line2);color:var(--ink2);vertical-align:top}
+  td:first-child{color:var(--ink);font-weight:550;white-space:nowrap}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .hit{color:var(--done);font-weight:600}
+
+  /* ---------- callout ---------- */
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);
+           padding:14px 18px;border-radius:0 8px 8px 0;margin-top:16px;font-size:13.5px;color:#20405e}
+  .callout b{color:#12334f}
+  .question{border-left:3px solid var(--warn);background:var(--warn-soft);
+            padding:13px 18px;border-radius:0 8px 8px 0;margin-bottom:10px;font-size:13.5px;color:#6b4a12}
+  .question b{color:#4d3409}
+
+  footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);
+         font-size:12px;color:var(--ink3);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .reset{background:none;border:none;color:var(--ink3);font-size:12px;cursor:pointer;
+         text-decoration:underline;text-underline-offset:2px;padding:0}
+  .reset:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">CSEE W4823 · Advanced Logic Design · Individual Project</div>
+  <h1>64-tap FIR Filter — 工程看板</h1>
+  <p class="sub">16-bit Q1.15 输入/系数，100 MS/s 吞吐，Q7.9 输出，评分按 FOM = Throughput / (Energy × Area)。</p>
+
+  <div class="spec">
+    <span class="chip">64 taps</span>
+    <span class="chip">clk1 <b>100 MHz</b></span>
+    <span class="chip">clk2 <b>800 MHz</b> (P=8)</span>
+    <span class="chip">in/coef <b>Q1.15</b></span>
+    <span class="chip">out <b>Q7.9</b></span>
+    <span class="chip">乘积 <b>Q2.18</b></span>
+    <span class="chip">acc <b>32b</b></span>
+    <span class="chip">NRMSE <b>0.0028%</b></span>
+  </div>
+
+  <div class="prog">
+    <div class="prog-top">
+      <span class="prog-label">总体进度</span>
+      <span class="prog-num"><b id="pct">0</b>% &nbsp;·&nbsp; <span id="cnt">0 / 0</span></span>
+    </div>
+    <div class="bar"><span id="barfill"></span></div>
+    <div class="prog-sub" id="nextup">—</div>
+  </div>
+
+  <!-- ================= MILESTONES ================= -->
+  <section>
+    <h2>里程碑</h2>
+    <div id="msroot">
+
+      <!-- M1 -->
+      <div class="ms open" data-ms="m1">
+        <div class="ms-head">
+          <div class="tick"></div>
+          <span class="ms-id">REPORT 1</span>
+          <span class="ms-title">黄金模型 + 架构定义</span>
+          <span class="ms-pts">4 pt · 下周交</span>
+        </div>
+        <div class="ms-body">
+          <p class="ms-note"><b>交付物</b>：Verilog 黄金模型与输入激励、DUT 伪码、ASM chart、数据通路框图、各数据通路块规格（时钟频率、读写端口数…）。2 页 IEEE 双栏。</p>
+          <ul class="tasks">
+            <li data-t="m1-spec"><span class="cb"></span><span class="txt">核对硬规格：Q1.15 输入、Q7.9 输出、100 MS/s、clk 相位不同步</span></li>
+            <li data-t="m1-prec"><span class="cb"></span><span class="txt">精度预算：定点模型跑 NRMSE，定下乘积/累加字宽（已做：Q2.18 + 32b → 0.0024%）</span></li>
+            <li data-t="m1-arch"><span class="cb"></span><span class="txt">架构选型：P=8 / K=8 / clk2=800 MHz，banked sample window + banked CMEM（已写 <code>doc/ARCH.md</code>）</span></li>
+            <li data-t="m1-gold"><span class="cb"></span><span class="txt">黄金模型 RTL：<code>shortreal</code> float32 的 64-tap FIR，同源量化输入与系数</span></li>
+            <li data-t="m1-stim"><span class="cb"></span><span class="txt">输入激励：rstn / clk1 / clk2（相位错开）/ din / valid_in / cin / caddr / cload</span></li>
+            <li data-t="m1-tb"><span class="cb"></span><span class="txt">自校验测试平台：逐样本比对 + worst / average NRMSE 打印</span></li>
+            <li data-t="m1-sim"><span class="cb"></span><span class="txt">仿真跑通 10000 样本，NRMSE 与 Python 模型对齐（0.0024% / 0.0043%）</span></li>
+            <li data-t="m1-pseudo"><span class="cb"></span><span class="txt">DUT 伪码：系数加载、样本接收、8 拍 MAC、round + saturate</span></li>
+            <li data-t="m1-asm"><span class="cb"></span><span class="txt">ASM chart（TikZ）：IDLE → CLOAD → RUN(ACCEPT / COMPUTE j=0..7 / OUT)</span></li>
+            <li data-t="m1-dp"><span class="cb"></span><span class="txt">数据通路框图（TikZ）：同步器·窗口·CMEM·ALU·控制器 + 位宽标注</span></li>
+            <li data-t="m1-blockspec"><span class="cb"></span><span class="txt">分块规格表：频率、读写端口、容量、位宽、bank 组织</span></li>
+            <li data-t="m1-tex"><span class="cb"></span><span class="txt">LaTeX 报告 2 页（IEEE conference template，Overleaf 编译）</span></li>
+            <li data-t="m1-submit"><span class="cb"></span><span class="txt">提交 Report #1</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- M2 -->
+      <div class="ms" data-ms="m2">
+        <div class="ms-head">
+          <div class="tick"></div>
+          <span class="ms-id">REPORT 2</span>
+          <span class="ms-title">ALU / MAC 数据通路</span>
+          <span class="ms-pts">3 pt</span>
+        </div>
+        <div class="ms-body">
+          <p class="ms-note"><b>交付物</b>：ALU 规格与架构、RTL、综合后 PPA、SDF 反标 PrimeTime 时序与功耗（含 VCD）、必要的架构更新。</p>
+          <ul class="tasks">
+            <li data-t="m2-rtl"><span class="cb"></span><span class="txt">ALU RTL：8 × (16×16 → Q2.18) + 3 级加法树 + 32b acc + round/sat</span></li>
+            <li data-t="m2-tb"><span class="cb"></span><span class="txt">ALU 随机激励测试平台（对照浮点参考）</span></li>
+            <li data-t="m2-syn"><span class="cb"></span><span class="txt">DC 综合 → <code>nl.v</code> + SDF，门级网表重跑功能验证</span></li>
+            <li data-t="m2-pt"><span class="cb"></span><span class="txt">PrimeTime：最大时钟频率、能耗（VCD 反标）</span></li>
+            <li data-t="m2-ppa"><span class="cb"></span><span class="txt">PPA 表 + 画图（不许贴 EDA 截图）</span></li>
+            <li data-t="m2-sweep"><span class="cb"></span><span class="txt">扫描：P ∈ {4, 8, 16} × 乘积字宽 ∈ {16, 20, 24, 32}，定 FOM 最优点</span></li>
+            <li data-t="m2-upd"><span class="cb"></span><span class="txt">按实测结果更新 ASM / 数据通路 / 伪码</span></li>
+            <li data-t="m2-tex"><span class="cb"></span><span class="txt">LaTeX 报告 + 提交</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- M3 -->
+      <div class="ms" data-ms="m3">
+        <div class="ms-head">
+          <div class="tick"></div>
+          <span class="ms-id">REPORT 3</span>
+          <span class="ms-title">CMEM / 寄存器存储块</span>
+          <span class="ms-pts">3 pt</span>
+        </div>
+        <div class="ms-body">
+          <p class="ms-note"><b>交付物</b>：各存储块规格与架构、RTL、综合后 PPA、PrimeTime 时序/功耗、必要的架构更新。</p>
+          <ul class="tasks">
+            <li data-t="m3-rtl"><span class="cb"></span><span class="txt">CMEM RTL：8 banks × 8 × 16b，1W / 8R</span></li>
+            <li data-t="m3-win"><span class="cb"></span><span class="txt">Sample window RTL：8 banks × 8 × 16b 移位 + 8:1 读出</span></li>
+            <li data-t="m3-tb"><span class="cb"></span><span class="txt">存储块测试平台（写入/读出/边界/bank 冲突）</span></li>
+            <li data-t="m3-syn"><span class="cb"></span><span class="txt">综合 → 门级验证 → PrimeTime</span></li>
+            <li data-t="m3-sram"><span class="cb"></span><span class="txt">flop vs SRAM macro 面积对比（1 kb 量级要不要用 SRAM）</span></li>
+            <li data-t="m3-tex"><span class="cb"></span><span class="txt">LaTeX 报告 + 提交</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- M4 -->
+      <div class="ms" data-ms="m4">
+        <div class="ms-head">
+          <div class="tick"></div>
+          <span class="ms-id">REPORT 4</span>
+          <span class="ms-title">整核集成 + 指标 + FOM</span>
+          <span class="ms-pts">15 pt · 最重</span>
+        </div>
+        <div class="ms-body">
+          <p class="ms-note"><b>交付物</b>：整核 RTL、门级验证、PPA、指标汇总表、FOM。必须<b>自包含</b>——ASM chart、数据通路、各块综合后 PPA 全部重新放进最终文档，不许只用「见 Report 1」带过。</p>
+          <ul class="tasks">
+            <li data-t="m4-core"><span class="cb"></span><span class="txt">FIR core 顶层 RTL 集成（同步器 + 窗口 + CMEM + ALU + 控制器）</span></li>
+            <li data-t="m4-sync"><span class="cb"></span><span class="txt">CDC 验证：clk1/clk2 相位扫描 + 相位抖动下的数据完整性</span></li>
+            <li data-t="m4-e2e"><span class="cb"></span><span class="txt">端到端 10000 样本自校验，打印 NRMSE（wc / avg）</span></li>
+            <li data-t="m4-syn"><span class="cb"></span><span class="txt">整核综合 → 门级网表重跑端到端 → PrimeTime 时序/功耗</span></li>
+            <li data-t="m4-metric"><span class="cb"></span><span class="txt">指标表：Throughput / fmax / Energy / Area / NRMSE(WC,AC) / FoM</span></li>
+            <li data-t="m4-tex"><span class="cb"></span><span class="txt">LaTeX 最终报告（自包含）+ 提交</span></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= PRECISION ================= -->
+  <section>
+    <h2>精度预算（Verilog 实测，10000 样本，float32 golden）</h2>
+    <table>
+      <thead><tr><th>乘积字宽</th><th>累加器</th><th class="num">平均 NRMSE</th><th class="num">最坏 NRMSE</th></tr></thead>
+      <tbody>
+        <tr><td>32b Q2.30 全精度</td><td class="num">48b</td><td class="num">0.0028 %</td><td class="num">0.0048 %</td></tr>
+        <tr><td>24b Q2.22</td><td class="num">48b</td><td class="num">0.0028 %</td><td class="num">0.0049 %</td></tr>
+        <tr><td>20b Q2.18 · round ★</td><td class="num">48b</td><td class="num hit">0.0028 %</td><td class="num hit">0.0049 %</td></tr>
+        <tr><td>16b Q2.14 · round</td><td class="num">48b</td><td class="num">0.0029 %</td><td class="num">0.0074 %</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      误差地板由<b>输出格式 Q7.9 本身</b>决定（LSB = 2⁻⁹，y 的实测动态范围 ≈ 23.1 ⇒ 地板约 0.0024%）。课上目标是「低个位数百分比、最好 &lt; 2%」，面积成本比这低三个数量级的精度储备是纯浪费——所以内部字宽按面积最优取，不按精度取。注意截断必须<b>配四舍五入</b>，直接朝 −∞ 截断会累积出 −0.0083% 的直流偏置。
+    </div>
+  </section>
+
+  <!-- ================= ARCH ================= -->
+  <section>
+    <h2>并行度权衡</h2>
+    <table>
+      <thead><tr><th>P（MAC 数）</th><th class="num">K（周期/输出）</th><th class="num">clk2</th><th>判断</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="num">64</td><td class="num">6.4 GHz</td><td>不可行</td></tr>
+        <tr><td>4</td><td class="num">16</td><td class="num">1.6 GHz</td><td>时序吃紧</td></tr>
+        <tr><td>8 ★</td><td class="num">8</td><td class="num">800 MHz</td><td>baseline，面积最小；老师 PPT 点名 0.8 GHz 可行</td></tr>
+        <tr><td>16</td><td class="num">4</td><td class="num">400 MHz</td><td>面积换时序裕量</td></tr>
+        <tr><td>32</td><td class="num">2</td><td class="num">200 MHz</td><td>乘法器数量爆炸</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      每输出固定 64 次 MAC，<b>运算本身的能耗与 P 无关</b>，随 P 变的只有时钟树功耗（∝ f2 × 时钟单元数）和加法树并行度。所以 FOM 最优点必然在中间，必须靠 DC/PT 实测，不能靠猜——这是 Report #2 的主线。
+    </div>
+  </section>
+
+  <!-- ================= OPEN ================= -->
+  <section>
+    <h2>CDC 相位扫描（PW=20）</h2>
+    <table>
+    <thead><tr><th>clk2 相位偏移</th><th class="num">平均 NRMSE</th><th class="num">最坏 NRMSE</th></tr></thead>
+    <tbody>
+      <tr><td>0.000 ns</td><td class="num">0.0028 %</td><td class="num">0.0049 %</td></tr>
+      <tr><td>0.310 ns</td><td class="num">0.0028 %</td><td class="num">0.0049 %</td></tr>
+      <tr><td>0.625 ns</td><td class="num">0.0028 %</td><td class="num">0.0049 %</td></tr>
+      <tr><td>0.940 ns</td><td class="num">0.0028 %</td><td class="num">0.0049 %</td></tr>
+      <tr><td>1.100 ns</td><td class="num">0.0028 %</td><td class="num">0.0049 %</td></tr>
+    </tbody>
+    </table>
+    <div class="callout">
+    8 个相位点（0 – 1.1 ns）NRMSE 完全一致，第 10000 个样本一个不差 ⇒ 异步 FIFO 同步器对两域相位关系不敏感。这是 Report #1 里 Synchronizer 分块规格的直接证据。
+    </div>
+    </section>
+
+    <section>
+    <h2>待确认</h2>
+    <div class="question"><b>EDA 工具访问方式。</b>本机没有 DC / PrimeTime / VCS（WSL 里只有 iverilog 和 verilator）。Report #2–4 的所有 PPA 数据必须来自真实综合，这一条决定能不能这两天真的一鼓作气做完。</div>
+    <div class="question"><b>clk2 定 800 MHz（P=8）还是 400 MHz（P=16）。</b>前者面积最小、时序最紧；后者反过来。默认先按 800 MHz 走，Report #2 用实测数据定。</div>
+  </section>
+
+  <footer>
+    <span>CSEE W4823 · Project · baseline v1</span>
+    <button class="reset" id="reset">清除勾选状态</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var KEY = "csee4823-fir-board-v1";
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e){ state = {}; }
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll("ul.tasks li"));
+  var msCards = Array.prototype.slice.call(document.querySelectorAll(".ms"));
+
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+
+  function refresh(){
+    var total = boxes.length, done = 0;
+    boxes.forEach(function(li){
+      var t = li.getAttribute("data-t");
+      var on = !!state[t];
+      li.classList.toggle("done", on);
+      if (on) done++;
+    });
+    msCards.forEach(function(card){
+      var name = card.getAttribute("data-ms");
+      var items = card.querySelectorAll("ul.tasks li");
+      var all = items.length > 0;
+      Array.prototype.forEach.call(items, function(li){ if(!state[li.getAttribute("data-t")]) all = false; });
+      card.classList.toggle("is-complete", all);
+    });
+    var pct = total ? Math.round(done/total*100) : 0;
+    document.getElementById("pct").textContent = pct;
+    document.getElementById("cnt").textContent = done + " / " + total;
+    document.getElementById("barfill").style.width = pct + "%";
+
+    // next up: first unchecked task inside the earliest incomplete milestone
+    var next = null, label = null;
+    for (var i=0;i<msCards.length && !next;i++){
+      var items = msCards[i].querySelectorAll("ul.tasks li");
+      for (var j=0;j<items.length;j++){
+        if (!state[items[j].getAttribute("data-t")]) {
+          next = items[j];
+          label = msCards[i].querySelector(".ms-title").textContent;
+          break;
+        }
+      }
+    }
+    var el = document.getElementById("nextup");
+    if (next) {
+      el.innerHTML = "下一项 · <b style=\"color:var(--ink)\">" + label + "</b> — " +
+                     next.querySelector(".txt").textContent;
+    } else {
+      el.innerHTML = "全部完成。";
+    }
+  }
+
+  boxes.forEach(function(li){
+    li.addEventListener("click", function(){
+      var t = li.getAttribute("data-t");
+      state[t] = !state[t];
+      save(); refresh();
+    });
+  });
+
+  // milestone header toggles the accordion (not the completion state)
+  msCards.forEach(function(card){
+    card.querySelector(".ms-head").addEventListener("click", function(){
+      card.classList.toggle("open");
+    });
+    var tick = card.querySelector(".tick");
+    tick.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      var name = card.getAttribute("data-ms");
+      var items = card.querySelectorAll("ul.tasks li");
+      var allDone = true;
+      Array.prototype.forEach.call(items, function(li){ if(!state[li.getAttribute("data-t")]) allDone = false; });
+      Array.prototype.forEach.call(items, function(li){ state[li.getAttribute("data-t")] = !allDone; });
+      if (!allDone) card.classList.add("open");
+      save(); refresh();
+    });
+  });
+
+  document.getElementById("reset").addEventListener("click", function(){
+    state = {}; save(); refresh();
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>

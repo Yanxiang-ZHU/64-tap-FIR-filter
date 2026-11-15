@@ -1,0 +1,46 @@
+#! /usr/bin/vvp
+:ivl_version "12.0 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/system.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_sys.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_textio.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/v2005_math.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/va_math.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/v2009.vpi";
+S_0x561bf87c5980 .scope package, "$unit" "$unit" 2 1;
+ .timescale 0 0;
+S_0x561bf879f630 .scope module, "t_pa" "t_pa" 3 2;
+ .timescale 0 0;
+v0x561bf879f7c0_0 .var/real "p", 0 0;
+v0x561bf87e7fd0_0 .var/real "q", 0 0;
+    .scope S_0x561bf879f630;
+T_0 ;
+    %pushi/real 1331439861, 4064; load=0.310000
+    %pushi/real 3187671, 4042; load=0.310000
+    %add/wr;
+    %store/real v0x561bf879f7c0_0;
+    %end;
+    .thread T_0, $init;
+    .scope S_0x561bf879f630;
+T_1 ;
+    %pushi/real 1073741824, 4066; load=1.00000
+    %store/real v0x561bf87e7fd0_0;
+    %vpi_func 3 6 "$value$plusargs" 32, "PHASE=%f", v0x561bf87e7fd0_0 {0 0 0};
+    %cmpi/ne 0, 0, 32;
+    %jmp/0xz  T_1.0, 4;
+    %vpi_call/w 3 6 "$display", "got q=%f", v0x561bf87e7fd0_0 {0 0 0};
+    %jmp T_1.1;
+T_1.0 ;
+    %vpi_call/w 3 6 "$display", "no arg, q=%f", v0x561bf87e7fd0_0 {0 0 0};
+T_1.1 ;
+    %vpi_call/w 3 7 "$display", "p=%f", v0x561bf879f7c0_0 {0 0 0};
+    %vpi_call/w 3 8 "$finish" {0 0 0};
+    %end;
+    .thread T_1;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "-";
+    "t_pa.v";

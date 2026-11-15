@@ -1,0 +1,9 @@
+ max amplitude result: y = 32766 (63.9961), saturator not engaged
+
+=========== fir_alu unit check ===========
+ P=8  PW=20 (Q2.18)  ACCW=32
+ groups driven 416, y_valid pulses 54
+ expected outputs 54
+ RESULT: PASS
+=========================================
+tb/tb_fir_alu.v:222: $finish called at 4216000 (1ps)

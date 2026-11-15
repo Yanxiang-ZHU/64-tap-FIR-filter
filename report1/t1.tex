@@ -1,0 +1,12 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\newcommand{\qf}[2]{Q#1.#2}
+\begin{document}
+Inputs and coefficients are signed $\qf{1}{15}$: one sign bit, one integer bit
+and fifteen fractional bits, covering $[-1,+1)$. A 16$\times$16 product is
+exact in $\qf{2}{30}$, and 64 of them are accumulated before the result is
+rounded back to $\qf{7}{9}. Both the golden model and the DUT operate on the
+\emph{same} quantised words.
+\end{document}

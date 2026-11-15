@@ -1,0 +1,7 @@
+
+=========== fir_cmem unit check ===========
+ capacity 64 x 16b in 8 banks x 8 entries
+ transpose: bank(i mod 8), entry(i div 8)
+ RESULT: PASS
+===========================================
+tb/tb_fir_cmem.v:107: $finish called at 691000 (1ps)

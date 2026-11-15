@@ -1,0 +1,12 @@
+
+=========== 64-tap FIR core, end-to-end check ===========
+ samples 10000   seed 426acdc7   phase 0.310 ns   gaps 1
+   outputs dut=10000 golden=10000
+   golden y range -9.6808 .. 9.4220 (span 19.1027)
+   NRMSE  average    0.0030 %
+   NRMSE  worst case 0.0052 %
+   max abs error     0.000993 (0.509 LSB of Q7.9)
+=========================================================
+ RESULT: PASS
+
+tb/tb_fir_core.v:228: $finish called at 131500935 (1ps)
