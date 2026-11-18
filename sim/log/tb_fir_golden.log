@@ -1,0 +1,10 @@
+
+=========== fir_golden self-check ===========
+ Test 1  impulse response equals the coefficient sequence
+         64 taps, max deviation from 0.5*b[n]/32768 = 0.000e+00
+ Test 2  pure gain 0.25 on 40 random samples, max dev 0.000e+00
+ Test 3  DC response 64*c*x = 0.125 exact, max dev 0.000e+00
+
+ RESULT: PASS
+============================================
+tb/tb_fir_golden.v:221: $finish called at 2810000 (1ps)

@@ -66,8 +66,8 @@ module tb_fir_ref;
         .dout(dout), .dout_valid(dout_valid)
     );
 
-    fir_golden #(.NTAP(NTAP)) u_gold (
-        .rstn(rstn), .clk1(clk1), .clk2(clk2),
+    fir_golden #(.N(NTAP)) u_gold (
+        .rst_n(rstn), .clk1(clk1), .clk2(clk2),
         .din_valid(din_valid_in), .din(din),
         .cin(cin), .caddr(caddr), .cload(cload),
         .yout(gout), .yvalid(gvalid)
@@ -105,6 +105,7 @@ module tb_fir_ref;
         reg [15:0] r;
         begin
             r = $random(seed);
+            // 0x8000 = exactly -1.0; excluded to keep |x| < 1 strictly
             if (r == 16'h8000) r = 16'h7FFF;
             random_q15 = r;
         end

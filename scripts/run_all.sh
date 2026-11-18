@@ -48,9 +48,11 @@ echo "=== 2. block level =========================================="
 run tb_fir_alu  tb_fir_alu  "rtl/fir_alu.v tb/tb_fir_alu.v"
 run tb_fir_cmem tb_fir_cmem "rtl/fir_cmem.v tb/tb_fir_cmem.v"
 run tb_fir_win  tb_fir_win  "rtl/fir_win.v tb/tb_fir_win.v"
+run tb_fir_sync tb_fir_sync "rtl/fir_sync.v tb/tb_fir_sync.v"
 
 echo
 echo "=== 3. reference model (Report #1) =========================="
+run tb_fir_golden tb_fir_golden "tb/fir_golden.v tb/tb_fir_golden.v"
 run tb_fir_ref  tb_fir_ref  "tb/fir_core_ref.v tb/fir_golden.v tb/tb_fir_ref.v"
 
 echo
@@ -59,6 +61,7 @@ run tb_fir_core tb_fir_core "$RTL tb/fir_golden.v tb/tb_fir_core.v"
 run tb_core_s1  tb_fir_core "$RTL tb/fir_golden.v tb/tb_fir_core.v" +SEED=1
 run tb_core_s2  tb_fir_core "$RTL tb/fir_golden.v tb/tb_fir_core.v" +SEED=987654321
 run tb_core_gap tb_fir_core "$RTL tb/fir_golden.v tb/tb_fir_core.v" +GAPS +SEED=424242
+run tb_fullscale tb_fir_fullscale "$RTL tb/tb_fir_fullscale.v"
 
 echo
 echo "=== 5. clk2 phase sweep (CDC robustness) ===================="

@@ -29,6 +29,17 @@
 
 module tb_fir_core;
 
+    // +VCD writes sim/tb_fir_core.vcd so the run can be inspected in a waveform
+    // viewer.  It is off by default: a 10 000-sample dump is ~50 MB.
+    integer dump_en;
+    initial begin
+        dump_en = $test$plusargs("VCD");
+        if (dump_en) begin
+            $dumpfile("sim/tb_fir_core.vcd");
+            $dumpvars(0, tb_fir_core);
+        end
+    end
+
     localparam integer NTAP  = 64;
     localparam integer P     = 8;
     localparam integer K     = 8;
@@ -84,8 +95,8 @@ module tb_fir_core;
         .dout(dout), .dout_valid(dout_valid)
     );
 
-    fir_golden #(.NTAP(NTAP)) u_gold (
-        .rstn(rstn), .clk1(clk1), .clk2(clk2),
+    fir_golden #(.N(NTAP)) u_gold (
+        .rst_n(rstn), .clk1(clk1), .clk2(clk2),
         .din_valid(din_valid), .din(din),
         .cin(cin), .caddr(caddr), .cload(cload),
         .yout(gout), .yvalid(gvalid)
@@ -112,7 +123,11 @@ module tb_fir_core;
         reg [15:0] r;
         begin
             r = $random(seed);
-            if (r == 16'h8000) r = 16'h7FFF;    // -1.0 is outside Q1.15
+            // 0x8000 is the code for exactly -1.0.  It IS representable, but
+            // dropping it keeps |x| < 1 strictly, which makes |y| < 64 and
+            // therefore the saturator unreachable in the random sweep.  The
+            // saturating corner case is tested separately (see FULL_SCALE).
+            if (r == 16'h8000) r = 16'h7FFF;
             urand_q15 = r;
         end
     endfunction

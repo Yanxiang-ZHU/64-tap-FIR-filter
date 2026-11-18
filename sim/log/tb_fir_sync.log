@@ -1,0 +1,10 @@
+ Test A: 8 words in, 8 out, full/empty flags correct
+ Test B: 466 words streamed in order, no loss, no duplication
+ Test C: 208 words survived a 200-cycle stall then burst
+
+=========== fir_sync unit check ===========
+ depth 8, clkw 100 MHz, clkr 800 MHz
+ gray full condition inverts the two MSBs
+ RESULT: PASS
+===========================================
+tb/tb_fir_sync.v:203: $finish called at 10954685 (1ps)

@@ -99,7 +99,7 @@ doc/                          ARCH.md, RTL_SPEC.md, results/, board.html
 
 ## Verification
 
-`./scripts/run_all.sh` runs 16 checks and passes cleanly:
+`./scripts/run_all.sh` runs 19 checks and passes cleanly:
 
 | Check | What it proves |
 |---|---|
@@ -107,12 +107,29 @@ doc/                          ARCH.md, RTL_SPEC.md, results/, board.html
 | `tb_fir_alu` | every accumulator value and every output word over 400 groups, plus forced saturation |
 | `tb_fir_cmem` | the address transpose, read stability under a concurrent write, write-through timing |
 | `tb_fir_win` | the window invariant `x[n-p-8j]` for 200 samples × 8 groups, including the group-0 bypass |
+| `tb_fir_sync` | directed fill/drain, ordered streaming with random stalls on both sides, and a 200-cycle stall followed by a burst — no word lost, duplicated, or reordered |
+| `tb_fir_golden` | the golden model itself, against the *definition* of an FIR: impulse response must equal the coefficient sequence, a single-tap filter must act as a pure gain, and a DC input must give exactly 64·c·x |
 | `tb_fir_ref` | the behavioural reference against the golden model |
 | `tb_fir_core` ×4 | the synthesizable core end to end: 3 seeds + a bursty-input case |
+| `tb_fir_fullscale` | the one input that saturates: all `x = b = −1.0` gives an ideal `y = +64.0`, above the Q7.9 maximum of 63.998, so the output must clamp to `32767` rather than wrap |
 | phase sweep ×8 | CDC robustness over clk2 phase offsets 0 – 1.1 ns |
 
-Measured accuracy of the assembled core: **average NRMSE 0.0028 %, worst case
-0.0049 %, peak error 0.51 LSB** of Q7.9 over 10 000 random samples.
+Measured accuracy of the assembled core: **average NRMSE 0.0029 %, worst case
+0.0051 %, peak error 0.51 LSB** of Q7.9 over 10 000 random samples.
+
+### Mutation checks
+
+Each of the three defects found during bring-up was re-injected on purpose to
+confirm that the bench that covers it actually fails. All three do:
+
+| Re-injected defect | Bench | Observed result |
+|---|---|---|
+| FIFO `full` inverts only the top gray bit | `tb_fir_sync` | `FAIL (14)` — reads return words 9,10,11… instead of 1,2,3… |
+| window rotation not applied to the read address | `tb_fir_win` | `FAIL (1372)` of 1600 checked words |
+| prefetch stage removed | `tb_fir_core +GAPS` | `FAIL`: worst-case NRMSE 73.6 % (average 26.3 %) |
+
+That last row is the reason the bench has a bursty-input mode at all: with a
+gap-free stimulus the FIFO never fills, so a broken full flag is invisible.
 
 ---
 

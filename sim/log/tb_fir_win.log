@@ -4,4 +4,4 @@
  samples pushed 200, groups checked 1600
  RESULT: PASS
 ==========================================
-tb/tb_fir_win.v:101: $finish called at 16045000 (1ps)
+tb/tb_fir_win.v:112: $finish called at 16045000 (1ps)

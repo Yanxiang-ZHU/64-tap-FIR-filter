@@ -15,6 +15,17 @@
 
 module tb_fir_alu;
 
+    // +VCD writes sim/tb_fir_alu.vcd so the run can be inspected in a waveform
+    // viewer.  It is off by default: a 10 000-sample dump is ~50 MB.
+    integer dump_en;
+    initial begin
+        dump_en = $test$plusargs("VCD");
+        if (dump_en) begin
+            $dumpfile("sim/tb_fir_alu.vcd");
+            $dumpvars(0, tb_fir_alu);
+        end
+    end
+
     localparam integer P    = 8;
     localparam integer K    = 8;
     localparam integer PW   = 20;

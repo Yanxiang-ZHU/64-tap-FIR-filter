@@ -1,0 +1,8 @@
+
+=========== full-scale / saturation corner case ===========
+  all x=b=-1.0        y = 32767 (63.998047)   OK (saturated, did not wrap)
+  all x=b=+0.99997    y = 32766 (63.996094)   OK (no clamp)
+  x=-1.0, b=+0.99997  y = -32767 (-63.998047)   OK (no clamp)
+ RESULT: PASS
+==========================================================
+tb/tb_fir_fullscale.v:118: $finish called at 2739060 (1ps)

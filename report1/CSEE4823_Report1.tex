@@ -146,11 +146,15 @@ worst-case error; round-half-up removes the offset entirely
 
 \subsection{Range}
 
-Since $|x|<1$ and $|b|<1$, $|y|<64$ holds for any coefficient set, so a
-$\qf{7}{9}$ word never overflows: the extreme input
-$x=b=32767$ gives $y = 63.996$. The saturator is therefore defensive only;
-Section~\ref{sec:tb} verifies it by forcing the internal value past the rail
-rather than by searching for an input that reaches it.
+The $\qf{1}{15}$ code range is $[-1.0,\,+0.99997]$: the most negative code
+\texttt{0x8000} is exactly $-1.0$, while $+1.0$ is not representable. Hence
+$|x|\le 1$ and $|b|\le 1$, and $|y|\le 64$ with equality only when every input
+\emph{and} every coefficient is exactly $-1.0$. Since $\qf{7}{9}$ tops out at
+$63.998$, that single corner cases saturates; every other combination stays
+strictly inside. The design clamps rather than wraps, which
+Section~
+ef{sec:tb} verifies as a directed test, and the random stimulus
+excludes the code \texttt{0x8000} so that the range argument stays strict.
 
 %%============================================================================
 \section{Micro-architecture}\label{sec:arch}
@@ -366,13 +370,25 @@ decides the error, not the internal precision.}
 
 \subsection{Current status}
 
-The environment is operational against a behavioural reference model of the
-specified arithmetic and already produces the numbers of
-Table~\ref{tab:pw} and Fig.~\ref{fig:acc}: average NRMSE $0.0029\,\%$,
-worst case $0.0051\,\%$, peak error 0.51\,LSB, over 10\,000 samples. Across
+The environment is operational and already produces the numbers of
+Table~
+ef{tab:pw} and Fig.~
+ef{fig:acc}: average NRMSE $0.0029\,\%$,
+worst case $0.0051\,\%$, peak error 0.51\,LSB over 10\,000 samples. Across
 five stimulus seeds the worst case stays within $0.0047$--$0.0052\,\%$, and
 sweeping the clk2 phase over $0$--$1.1$\,ns leaves the figures bit-identical,
 which is the direct evidence that the asynchronous interface is transparent.
+
+Two independent implementations of the specified arithmetic were used, which
+is what makes the agreement meaningful rather than circular. A behavioural
+model (\texttt{fir\_core\_ref}) computes all 64 products in a single clock and
+shares no structure with the hardware; it is checked against the binary32
+golden model by the same scoreboard and reaches $0.0028\,\%$ average,
+$0.0049\,\%$ worst case. The banked, pipelined core reaches $0.0029\,\%$ and
+$0.0051\,\%$. Both stop at the $\qf{7}{9}$ quantisation floor and agree to
+within one output LSB, so neither the golden block nor the reference can be
+masking an error in the other.
+
 The same testbench, unchanged, is the acceptance test for the assembled core
 in Report~\#4.
 
